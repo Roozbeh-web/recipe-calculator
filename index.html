@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاسبه مواد اولیه بر اساس وزن پایه</title>
+    <style>
+        body {
+            font-family: 'Tahoma', sans-serif;
+            background: #f5f5dc;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 700px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        }
+        h1, h2 {
+            text-align: center;
+            color: #5a3e1b;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #8b5a2b;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #5a3e1b;
+        }
+        .result {
+            background: #f9f3e3;
+            padding: 15px;
+            border-radius: 15px;
+            margin-top: 20px;
+            direction: ltr;
+            text-align: left;
+        }
+        .result p {
+            margin: 8px 0;
+            font-family: monospace;
+            font-size: 16px;
+        }
+        .note {
+            font-size: 14px;
+            color: #777;
+            text-align: center;
+            margin-top: 20px;
+        }
+        hr {
+            border-top: 1px dashed #c0a080;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🧆 محاسبه‌گر مواد اولیه</h1>
+    <p style="text-align:center">بر اساس وزن ماده پایه (همه واحدها: گرم)</p>
+
+    <label>🍽️ انتخاب دستور غذا:</label>
+    <select id="recipeSelect">
+        <option value="فلافل">فلافل (پایه: نخود)</option>
+        <option value="کوفته">کوفته (پایه: گوشت چرخ‌کرده)</option>
+        <option value="خمیر سمبوسه">خمیر سمبوسه (پایه: سیب‌زمینی)</option>
+        <option value="سس انبه">سس انبه (پایه: پودر انبه)</option>
+    </select>
+
+    <label>⚖️ وزن ماده پایه (به گرم):</label>
+    <input type="number" id="baseWeight" placeholder="مثال: 200" value="200" step="any">
+
+    <button onclick="calculate()">محاسبه مواد اولیه</button>
+
+    <div class="result" id="resultArea">
+        <p>✅ نتیجه محاسبه در اینجا نمایش داده می‌شود</p>
+    </div>
+    <div class="note">📌 نسبت مواد ثابت است. وزن هر ماده = (وزن اصلی آن ÷ وزن پایه اصلی) × وزن پایه جدید</div>
+</div>
+
+<script>
+    const recipes = {
+        فلافل: {
+            baseName: "نخود",
+            baseOriginalWeight: 200,
+            ingredients: [
+                { name: "سیر", originalWeight: 7 },
+                { name: "نمک", originalWeight: 3 },
+                { name: "فلفل", originalWeight: 1.1 },
+                { name: "ادویه", originalWeight: 4.5 }
+            ]
+        },
+        کوفته: {
+            baseName: "گوشت چرخ‌کرده",
+            baseOriginalWeight: 500,
+            ingredients: [
+                { name: "برنج", originalWeight: 100 },
+                { name: "تخم‌مرغ", originalWeight: 50 },
+                { name: "نمک", originalWeight: 8 },
+                { name: "زردچوبه", originalWeight: 3 },
+                { name: "پیاز رنده شده", originalWeight: 150 }
+            ]
+        },
+        "خمیر سمبوسه": {
+            baseName: "سیب‌زمینی",
+            baseOriginalWeight: 1000,
+            ingredients: [
+                { name: "تره", originalWeight: 157 },
+                { name: "پیاز متوسط", originalWeight: 4 },
+                { name: "نمک", originalWeight: 15 },
+                { name: "فلفل", originalWeight: 5.5 },
+                { name: "ادویه", originalWeight: 12.5 }
+            ]
+        },
+        "سس انبه": {
+            baseName: "پودر انبه",
+            baseOriginalWeight: 20,  // 2 قاشق غذاخوری
+            ingredients: [
+                { name: "آب", originalWeight: 240 },    // 1 لیوان آب
+                { name: "سرکه", originalWeight: 60 },   // 0.25 لیوان سرکه
+                { name: "نمک", originalWeight: 1.3 },
+                { name: "فلفل", originalWeight: 0.2 }
+            ]
+        }
+    };
+
+    function calculate() {
+        const recipeKey = document.getElementById("recipeSelect").value;
+        let newBaseWeight = parseFloat(document.getElementById("baseWeight").value);
+
+        if (isNaN(newBaseWeight) || newBaseWeight <= 0) {
+            document.getElementById("resultArea").innerHTML = "<p style='color:red'>❌ لطفاً یک عدد معتبر برای وزن پایه وارد کنید.</p>";
+            return;
+        }
+
+        const recipe = recipes[recipeKey];
+        if (!recipe) {
+            document.getElementById("resultArea").innerHTML = "<p style='color:red'>❌ دستور پیدا نشد.</p>";
+            return;
+        }
+
+        const ratio = newBaseWeight / recipe.baseOriginalWeight;
+
+        let resultHTML = `<p><strong>📋 دستور: ${recipeKey}</strong></p>`;
+        resultHTML += `<p>🧷 ماده پایه: ${recipe.baseName} = ${newBaseWeight} گرم</p>`;
+        resultHTML += `<hr>`;
+
+        recipe.ingredients.forEach(ing => {
+            let newWeight = ing.originalWeight * ratio;
+
+            // اگر ماده "پیاز متوسط" است و واحد آن "عدد" است (به دلیل 4 عدد در دستور اصلی)
+            if (ing.name === "پیاز متوسط") {
+                let numberOfOnions = newWeight;
+                resultHTML += `<p>🔸 ${ing.name}: ${Math.ceil(numberOfOnions)} عدد (${newWeight.toFixed(2)} گرم برآوردی)</p>`;
+            } else {
+                resultHTML += `<p>🔸 ${ing.name}: ${newWeight.toFixed(2)} گرم</p>`;
+            }
+        });
+
+        resultHTML += `<hr><p style="font-size:14px; color:green">✨ ضریب تناسب: ${ratio.toFixed(4)}</p>`;
+
+        document.getElementById("resultArea").innerHTML = resultHTML;
+    }
+
+    window.onload = () => calculate();
+</script>
+</body>
+</html>
