@@ -3,183 +3,529 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محاسبه مواد اولیه بر اساس وزن پایه</title>
+    <title>دستورپز | محاسبه مواد اولیه</title>
+    <!-- فونت وزیر (مینیمال و مدرن) -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
     <style>
-        body {
-            font-family: 'Tahoma', sans-serif;
-            background: #f5f5dc;
+        * {
             margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 700px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.2);
-        }
-        h1, h2 {
-            text-align: center;
-            color: #5a3e1b;
-        }
-        label {
-            display: block;
-            margin-top: 15px;
-            font-weight: bold;
-        }
-        input, select, button {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            font-size: 16px;
-            border-radius: 10px;
-            border: 1px solid #ccc;
+            padding: 0;
             box-sizing: border-box;
         }
-        button {
-            background-color: #8b5a2b;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 20px;
+
+        body {
+            font-family: 'Vazirmatn', 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(145deg, #f0f4f8 0%, #e6edf2 100%);
+            min-height: 100vh;
+            padding: 40px 24px;
         }
-        button:hover {
-            background-color: #5a3e1b;
+
+        /* کانتینر اصلی */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
         }
-        .result {
-            background: #f9f3e3;
-            padding: 15px;
-            border-radius: 15px;
-            margin-top: 20px;
-            direction: ltr;
-            text-align: left;
-        }
-        .result p {
-            margin: 8px 0;
-            font-family: monospace;
-            font-size: 16px;
-        }
-        .note {
-            font-size: 14px;
-            color: #777;
+
+        /* هدر */
+        .header {
             text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 500;
+            color: #1a2e3f;
+            letter-spacing: -0.5px;
+            background: rgba(255,255,255,0.7);
+            display: inline-block;
+            padding: 8px 28px;
+            border-radius: 60px;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+
+        .header p {
+            color: #5a6e7a;
+            margin-top: 12px;
+            font-size: 0.9rem;
+        }
+
+        /* کارت‌ها */
+        .card {
+            background: #ffffff;
+            border-radius: 28px;
+            padding: 28px 32px;
+            margin-bottom: 28px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+
+        .card:hover {
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 500;
+            color: #1e3b3f;
+            margin-bottom: 24px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #cbdde6;
+            display: inline-block;
+        }
+
+        /* فرم و ورودی‌ها */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #2c4e5c;
+            margin-bottom: 6px;
+        }
+
+        input, select, button {
+            font-family: 'Vazirmatn', monospace;
+            font-size: 0.95rem;
+            padding: 12px 16px;
+            border-radius: 20px;
+            border: 1px solid #d4dee3;
+            background: #fefefe;
+            width: 100%;
+            transition: 0.2s;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: #5aa3b0;
+            box-shadow: 0 0 0 3px rgba(90, 163, 176, 0.1);
+        }
+
+        button {
+            background-color: #eef3f5;
+            color: #1e5f6b;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid #cbdfe5;
+            margin-top: 8px;
+        }
+
+        button:hover {
+            background-color: #e2edf1;
+            border-color: #9bbfc9;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background-color: #2c7a6e;
+            border-color: #246b60;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #23685e;
+        }
+
+        .btn-danger {
+            background-color: #f3e2e2;
+            border-color: #e0c4c4;
+            color: #ac5c5c;
+        }
+
+        .btn-danger:hover {
+            background-color: #ecd6d6;
+        }
+
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 0.8rem;
+            width: auto;
+            margin-top: 0;
+        }
+
+        /* آیتم مواد برای اضافه کردن */
+        .ingredient-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+            background: #f9fbfc;
+            padding: 8px 12px;
+            border-radius: 28px;
+        }
+
+        .ingredient-row input {
+            flex: 1;
+            margin: 0;
+        }
+
+        .remove-ing {
+            background: none;
+            border: none;
+            color: #b37b7b;
+            font-size: 1.3rem;
+            width: 40px;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        /* لیست دستورها */
+        .recipes-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .recipe-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafb;
+            padding: 12px 20px;
+            border-radius: 40px;
+            border: 1px solid #e2ecef;
+        }
+
+        .recipe-name {
+            font-weight: 500;
+            color: #1a4b53;
+        }
+
+        .recipe-base {
+            font-size: 0.8rem;
+            color: #789ba6;
+        }
+
+        /* نتایج محاسبه */
+        .result-box {
+            background: #f2f6f9;
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 20px;
+            border-right: 4px solid #2c7a6e;
+        }
+
+        .result-line {
+            font-family: 'Vazirmatn', monospace;
+            padding: 8px 0;
+            border-bottom: 1px dashed #cedfe5;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+        }
+
+        .result-line strong {
+            color: #1d5b63;
+        }
+
+        .ratio-badge {
+            background: #e9f0f3;
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            color: #3f828f;
+        }
+
+        hr {
+            margin: 16px 0;
+            border: 0;
+            height: 1px;
+            background: linear-gradient(to left, #cbdde6, transparent);
+        }
+
+        .note {
+            font-size: 0.7rem;
+            text-align: center;
+            color: #889ca6;
             margin-top: 20px;
         }
-        hr {
-            border-top: 1px dashed #c0a080;
+
+        @media (max-width: 640px) {
+            .card {
+                padding: 20px;
+            }
+            .ingredient-row {
+                flex-wrap: wrap;
+            }
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>🧆 محاسبه‌گر مواد اولیه</h1>
-    <p style="text-align:center">بر اساس وزن ماده پایه (همه واحدها: گرم)</p>
-
-    <label>🍽️ انتخاب دستور غذا:</label>
-    <select id="recipeSelect">
-        <option value="فلافل">فلافل (پایه: نخود)</option>
-        <option value="کوفته">کوفته (پایه: گوشت چرخ‌کرده)</option>
-        <option value="خمیر سمبوسه">خمیر سمبوسه (پایه: سیب‌زمینی)</option>
-        <option value="سس انبه">سس انبه (پایه: پودر انبه)</option>
-    </select>
-
-    <label>⚖️ وزن ماده پایه (به گرم):</label>
-    <input type="number" id="baseWeight" placeholder="مثال: 200" value="200" step="any">
-
-    <button onclick="calculate()">محاسبه مواد اولیه</button>
-
-    <div class="result" id="resultArea">
-        <p>✅ نتیجه محاسبه در اینجا نمایش داده می‌شود</p>
+    <div class="header">
+        <h1>🍽️ دستورپز</h1>
+        <p>محاسبه مواد اولیه بر اساس وزن ماده پایه | ذخیره در مرورگر</p>
     </div>
-    <div class="note">📌 نسبت مواد ثابت است. وزن هر ماده = (وزن اصلی آن ÷ وزن پایه اصلی) × وزن پایه جدید</div>
+
+    <!-- بخش محاسبه -->
+    <div class="card">
+        <div class="card-title">🔍 محاسبه مواد</div>
+        <div class="form-group">
+            <label>انتخاب دستور</label>
+            <select id="recipeSelect"></select>
+        </div>
+        <div class="form-group">
+            <label>وزن ماده پایه (گرم)</label>
+            <input type="number" id="baseWeight" placeholder="مثال: 200" value="250" step="any">
+        </div>
+        <button class="btn-primary" onclick="calculate()">محاسبه مواد</button>
+        <div id="resultArea" class="result-box">
+            <div style="color:#7b8d97;">📋 نتیجه محاسبه در اینجا نمایش داده می‌شود</div>
+        </div>
+    </div>
+
+    <!-- بخش اضافه کردن دستور جدید -->
+    <div class="card">
+        <div class="card-title">➕ اضافه کردن دستور جدید</div>
+        <div class="form-group">
+            <label>نام دستور</label>
+            <input type="text" id="newRecipeName" placeholder="مثال: سس ماست و خیار">
+        </div>
+        <div class="form-group">
+            <label>ماده پایه</label>
+            <input type="text" id="newBaseName" placeholder="مثال: ماست">
+        </div>
+        <div class="form-group">
+            <label>وزن ماده پایه در دستور اصلی (گرم)</label>
+            <input type="number" id="newBaseWeight" placeholder="مثال: 300">
+        </div>
+
+        <label>📋 مواد اولیه (با نسبت ثابت)</label>
+        <div id="ingredientsList">
+            <div class="ingredient-row">
+                <input type="text" placeholder="نام ماده" class="ing-name">
+                <input type="number" placeholder="وزن (گرم)" class="ing-weight">
+                <button type="button" class="remove-ing" onclick="removeIngredient(this)">✕</button>
+            </div>
+        </div>
+        <button onclick="addIngredientField()" style="background:#eef3f5; margin-top: 6px;">+ افزودن ماده دیگر</button>
+        <button onclick="saveNewRecipe()" class="btn-primary" style="margin-top: 18px; background:#397d74;">ذخیره دستور</button>
+    </div>
+
+    <!-- بخش مدیریت دستورات ذخیره شده -->
+    <div class="card">
+        <div class="card-title">📚 دستورهای ذخیره شده</div>
+        <div id="recipeList" class="recipes-grid"></div>
+        <div class="note">📌 دستورهایی که اضافه می‌کنید در مرورگر خودتان ذخیره می‌شود و پس از بازگشت نیز موجود است.</div>
+    </div>
 </div>
 
 <script>
-    const recipes = {
-        فلافل: {
-            baseName: "نخود",
-            baseOriginalWeight: 200,
-            ingredients: [
-                { name: "سیر", originalWeight: 7 },
-                { name: "نمک", originalWeight: 3 },
-                { name: "فلفل", originalWeight: 1.1 },
-                { name: "ادویه", originalWeight: 4.5 }
-            ]
-        },
-        کوفته: {
-            baseName: "گوشت چرخ‌کرده",
-            baseOriginalWeight: 500,
-            ingredients: [
-                { name: "برنج", originalWeight: 100 },
-                { name: "تخم‌مرغ", originalWeight: 50 },
-                { name: "نمک", originalWeight: 8 },
-                { name: "زردچوبه", originalWeight: 3 },
-                { name: "پیاز رنده شده", originalWeight: 150 }
-            ]
-        },
-        "خمیر سمبوسه": {
-            baseName: "سیب‌زمینی",
-            baseOriginalWeight: 1000,
-            ingredients: [
-                { name: "تره", originalWeight: 157 },
-                { name: "پیاز متوسط", originalWeight: 4 },
-                { name: "نمک", originalWeight: 15 },
-                { name: "فلفل", originalWeight: 5.5 },
-                { name: "ادویه", originalWeight: 12.5 }
-            ]
-        },
-        "سس انبه": {
-            baseName: "پودر انبه",
-            baseOriginalWeight: 20,  // 2 قاشق غذاخوری
-            ingredients: [
-                { name: "آب", originalWeight: 240 },    // 1 لیوان آب
-                { name: "سرکه", originalWeight: 60 },   // 0.25 لیوان سرکه
-                { name: "نمک", originalWeight: 1.3 },
-                { name: "فلفل", originalWeight: 0.2 }
-            ]
+    // آبجکت دستورها
+    let recipes = {};
+
+    // بارگذاری اولیه
+    function loadRecipes() {
+        const saved = localStorage.getItem("recipe_app_data");
+        if (saved) {
+            recipes = JSON.parse(saved);
+        } else {
+            // دستورهای پیش فرض (مینیمال و واقعی)
+            recipes = {
+                "فلافل": {
+                    baseName: "نخود",
+                    baseOriginalWeight: 200,
+                    ingredients: [
+                        { name: "سیر", originalWeight: 7 },
+                        { name: "نمک", originalWeight: 3 },
+                        { name: "فلفل سیاه", originalWeight: 1.1 },
+                        { name: "ادویه فلافل", originalWeight: 4.5 }
+                    ]
+                },
+                "کوفته قلقلی": {
+                    baseName: "گوشت چرخ کرده",
+                    baseOriginalWeight: 500,
+                    ingredients: [
+                        { name: "برنج", originalWeight: 100 },
+                        { name: "تخم مرغ", originalWeight: 50 },
+                        { name: "نمک", originalWeight: 8 },
+                        { name: "زردچوبه", originalWeight: 3 },
+                        { name: "پیاز رنده شده", originalWeight: 150 }
+                    ]
+                },
+                "خمیر سمبوسه": {
+                    baseName: "سیب زمینی",
+                    baseOriginalWeight: 1000,
+                    ingredients: [
+                        { name: "تره", originalWeight: 157 },
+                        { name: "پیاز متوسط", originalWeight: 4, isNumber: true },
+                        { name: "نمک", originalWeight: 15 },
+                        { name: "فلفل", originalWeight: 5.5 },
+                        { name: "ادویه کاری", originalWeight: 12.5 }
+                    ]
+                },
+                "سس انبه": {
+                    baseName: "پودر انبه",
+                    baseOriginalWeight: 20,
+                    ingredients: [
+                        { name: "آب", originalWeight: 240 },
+                        { name: "سرکه سفید", originalWeight: 60 },
+                        { name: "نمک", originalWeight: 1.3 },
+                        { name: "فلفل", originalWeight: 0.2 }
+                    ]
+                }
+            };
+            saveToLocal();
         }
-    };
+        updateSelect();
+        updateRecipeListUI();
+        calculate();
+    }
+
+    function saveToLocal() {
+        localStorage.setItem("recipe_app_data", JSON.stringify(recipes));
+    }
+
+    function updateSelect() {
+        const select = document.getElementById("recipeSelect");
+        select.innerHTML = "";
+        for (let name in recipes) {
+            const opt = document.createElement("option");
+            opt.value = name;
+            opt.textContent = `${name} (پایه: ${recipes[name].baseName})`;
+            select.appendChild(opt);
+        }
+    }
+
+    function updateRecipeListUI() {
+        const container = document.getElementById("recipeList");
+        container.innerHTML = "";
+        for (let name in recipes) {
+            const div = document.createElement("div");
+            div.className = "recipe-item";
+            div.innerHTML = `
+                <div>
+                    <span class="recipe-name">${name}</span>
+                    <span class="recipe-base"> — ${recipes[name].baseName}</span>
+                </div>
+                <button class="btn-sm btn-danger" onclick="deleteRecipe('${name.replace(/'/g, "\\'")}')">حذف</button>
+            `;
+            container.appendChild(div);
+        }
+    }
+
+    function deleteRecipe(name) {
+        if (confirm(`آیا دستور "${name}" حذف شود؟`)) {
+            delete recipes[name];
+            saveToLocal();
+            updateSelect();
+            updateRecipeListUI();
+            calculate();
+        }
+    }
+
+    function addIngredientField() {
+        const container = document.getElementById("ingredientsList");
+        const div = document.createElement("div");
+        div.className = "ingredient-row";
+        div.innerHTML = `
+            <input type="text" placeholder="نام ماده" class="ing-name">
+            <input type="number" placeholder="وزن (گرم)" class="ing-weight">
+            <button type="button" class="remove-ing" onclick="removeIngredient(this)">✕</button>
+        `;
+        container.appendChild(div);
+    }
+
+    function removeIngredient(btn) {
+        btn.closest(".ingredient-row").remove();
+    }
+
+    function saveNewRecipe() {
+        const name = document.getElementById("newRecipeName").value.trim();
+        const baseName = document.getElementById("newBaseName").value.trim();
+        const baseWeight = parseFloat(document.getElementById("newBaseWeight").value);
+
+        if (!name || !baseName || isNaN(baseWeight) || baseWeight <= 0) {
+            alert("لطفاً نام دستور، ماده پایه و وزن معتبر وارد کنید.");
+            return;
+        }
+        if (recipes[name]) {
+            alert("این دستور قبلاً وجود دارد. لطفاً نام دیگری انتخاب کنید.");
+            return;
+        }
+
+        const ingredients = [];
+        const rows = document.querySelectorAll("#ingredientsList .ingredient-row");
+        for (let row of rows) {
+            const ingName = row.querySelector(".ing-name").value.trim();
+            const ingWeight = parseFloat(row.querySelector(".ing-weight").value);
+            if (ingName && !isNaN(ingWeight) && ingWeight > 0) {
+                ingredients.push({ name: ingName, originalWeight: ingWeight });
+            }
+        }
+
+        if (ingredients.length === 0) {
+            alert("حداقل یک ماده با وزن معتبر اضافه کنید.");
+            return;
+        }
+
+        recipes[name] = {
+            baseName: baseName,
+            baseOriginalWeight: baseWeight,
+            ingredients: ingredients
+        };
+        saveToLocal();
+
+        // پاک کردن فرم
+        document.getElementById("newRecipeName").value = "";
+        document.getElementById("newBaseName").value = "";
+        document.getElementById("newBaseWeight").value = "";
+        document.getElementById("ingredientsList").innerHTML = `
+            <div class="ingredient-row">
+                <input type="text" placeholder="نام ماده" class="ing-name">
+                <input type="number" placeholder="وزن (گرم)" class="ing-weight">
+                <button type="button" class="remove-ing" onclick="removeIngredient(this)">✕</button>
+            </div>
+        `;
+
+        updateSelect();
+        updateRecipeListUI();
+        alert(`دستور "${name}" با موفقیت ذخیره شد.`);
+        calculate();
+    }
 
     function calculate() {
         const recipeKey = document.getElementById("recipeSelect").value;
         let newBaseWeight = parseFloat(document.getElementById("baseWeight").value);
-
+        if (!recipeKey || !recipes[recipeKey]) return;
         if (isNaN(newBaseWeight) || newBaseWeight <= 0) {
-            document.getElementById("resultArea").innerHTML = "<p style='color:red'>❌ لطفاً یک عدد معتبر برای وزن پایه وارد کنید.</p>";
+            document.getElementById("resultArea").innerHTML = "<div style='color:#ac5c5c;'>❌ وزن پایه را به گرم و به صورت مثبت وارد کنید.</div>";
             return;
         }
 
         const recipe = recipes[recipeKey];
-        if (!recipe) {
-            document.getElementById("resultArea").innerHTML = "<p style='color:red'>❌ دستور پیدا نشد.</p>";
-            return;
-        }
-
         const ratio = newBaseWeight / recipe.baseOriginalWeight;
 
-        let resultHTML = `<p><strong>📋 دستور: ${recipeKey}</strong></p>`;
-        resultHTML += `<p>🧷 ماده پایه: ${recipe.baseName} = ${newBaseWeight} گرم</p>`;
-        resultHTML += `<hr>`;
+        let html = `<div style="margin-bottom:12px;"><strong>📖 ${recipeKey}</strong> — پایه: ${recipe.baseName} = ${newBaseWeight} گرم</div>`;
+        html += `<div class="ratio-badge">ضریب تناسب: ${ratio.toFixed(4)}</div>`;
+        html += `<hr>`;
 
         recipe.ingredients.forEach(ing => {
-            let newWeight = ing.originalWeight * ratio;
-
-            // اگر ماده "پیاز متوسط" است و واحد آن "عدد" است (به دلیل 4 عدد در دستور اصلی)
-            if (ing.name === "پیاز متوسط") {
-                let numberOfOnions = newWeight;
-                resultHTML += `<p>🔸 ${ing.name}: ${Math.ceil(numberOfOnions)} عدد (${newWeight.toFixed(2)} گرم برآوردی)</p>`;
+            let newVal = ing.originalWeight * ratio;
+            if (ing.isNumber) {
+                html += `<div class="result-line"><span>🔸 ${ing.name}</span> <span><strong>${Math.ceil(newVal)} عدد</strong> (${newVal.toFixed(1)} گرم)</span></div>`;
             } else {
-                resultHTML += `<p>🔸 ${ing.name}: ${newWeight.toFixed(2)} گرم</p>`;
+                html += `<div class="result-line"><span>🔸 ${ing.name}</span> <span><strong>${newVal.toFixed(2)} گرم</strong></span></div>`;
             }
         });
 
-        resultHTML += `<hr><p style="font-size:14px; color:green">✨ ضریب تناسب: ${ratio.toFixed(4)}</p>`;
-
-        document.getElementById("resultArea").innerHTML = resultHTML;
+        document.getElementById("resultArea").innerHTML = html;
     }
 
-    window.onload = () => calculate();
+    // رویدادها
+    window.onload = () => {
+        loadRecipes();
+        const weightInput = document.getElementById("baseWeight");
+        weightInput.addEventListener("input", () => calculate());
+        document.getElementById("recipeSelect").addEventListener("change", () => calculate());
+    };
 </script>
 </body>
 </html>
